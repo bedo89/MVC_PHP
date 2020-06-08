@@ -17,7 +17,12 @@ class UsersController extends AbstractController
         'CPassword'     => 'req|min(5)',
         'Email'         => 'req|email',
         'CEmail'        => 'req|email',
-        'PhoneNumber'   =>'alphanum|max(5)',
+        'PhoneNumber'   =>'alphanum|max(12)',
+        'GroupId'       =>'req|int'
+    ];
+
+    private $_editActionRoles = [
+        'PhoneNumber'   =>'alphanum|max(12)',
         'GroupId'       =>'req|int'
     ];
 
@@ -55,6 +60,43 @@ class UsersController extends AbstractController
             $user->SubscriptionDate = date('Y-m-d');
             $user->LastLogin        = date('Y-m-d H:i:s');
             $user->Status           = 1;
+
+            if($user->save()){
+                $this->messenger->add($this->language->get('message_create_success'));
+            }else{
+                $this->messenger->add($this->language->get('message_create_failed'), Messenger::APP_MESSAGE_ERROR);
+            }
+            $this->redirect('/users');
+        }
+
+        $this->_view();
+    }
+
+    public function editAction()
+    {
+
+        $id = $this->filterInt($this->_params[0]);
+        $user = UserModel::getByPK($id);
+
+        if($user === false){
+            $this->redirect('/users');
+        }
+
+        $this->_data['user'] = $user;
+
+        $this->language->load('template.common');
+        $this->language->load('users.edit');
+        $this->language->load('users.labels');
+        $this->language->load('users.messages');
+        $this->language->load('validation.errors');
+
+
+        $this->_data['groups'] = UserGroupModel::getAll();
+
+        if(isset($_POST['submit']) && $this->isValid($this->_editActionRoles, $_POST)){
+
+            $user->PhoneNumber      = $this->filterString($_POST['PhoneNumber']);
+            $user->GroupId          = $this->filterInt($_POST['GroupId']);
 
             if($user->save()){
                 $this->messenger->add($this->language->get('message_create_success'));

@@ -7,7 +7,7 @@
         </div>
         <div class="input_wrapper_other padding n50 select">
             <select required name="GroupId">
-                <option value=""><?= $text_user_GroupId ?></option>
+                <option value=""><?= $text_label_GroupId ?></option>
                 <?php if (false !== $groups): foreach ($groups as $group): ?>
                     <option value="<?= $group->GroupId ?>" <?= $this->selectedIf('GroupId', $group->GroupId, $user) ?>><?= $group->GroupName ?></option>
                 <?php endforeach;endif; ?>
